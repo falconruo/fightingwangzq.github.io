@@ -359,9 +359,113 @@ height:50vh;
     
     
     <article class="index-post">
-        <a class="abstract-title" href = "/2020/02/06/C-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" >
+        <a class="abstract-title" href = "/2020/02/06/%E6%B5%85%E8%B0%88C++%E7%9A%84ScopeExit/" >
             
-                <span>C-设计模式</span>
+                <span>浅谈C++的ScopeExit</span>
+        </a>
+        <div class="abstract-content">
+            最近研究了boost中的ScopeExit，发现是个这是个很高级的特性，可以在作用域结束时自动关闭已经打开的资源或做某些清理操作。举例: 如果没有ScopeExit
+1234567891011121314void test () &#123;    char *test &#x3D; new char[100];    if (a) &#123;        delete[] test; &#x2F;&#x2F; count 1        return;    &#125;    xxx;    if (b) &#123;        delete[] test; &#x2F;&...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/02/06</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href = "/2020/02/06/%E6%B5%85%E8%B0%88Linux%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/" >
+            
+                <span>浅谈Linux零拷贝机制</span>
+        </a>
+        <div class="abstract-content">
+            什么是零拷贝零拷贝指的是数据从一个存储区域到另一个存储区域的过程中不需要cpu参与执行拷贝的动作，通常用于网络传输文件时减少cpu的负载，解放cpu去提升系统整体性能。
+谈到零拷贝我们还需要了解到DMA是什么：DMA（Direct Memory Access）是指在现代计算机系统上，外接设备可以不用CPU干预，直接把数据传输到内存的技术。正常情况下，CPU全权负责内存的读写操作，而DMA技术可以把CPU解放出来，这将使计算机性能得到显著改善。
+如果做到零拷贝普通的文件传输伪代码如下：
+123while(read(buffer)) &#123;  write(fd, buffer);&#1...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/02/06</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href = "/2020/02/06/C++%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" >
+            
+                <span>C++迭代器注意事项</span>
+        </a>
+        <div class="abstract-content">
+            iterator优先于其它迭代器iterator优先于const_iterator，reverse_iterator，const_reverse_iterator，因为基本上大多数容器函数都是以iterator为参数，不支持其它三种迭代器，iterator转为const_iterator比较方便，但是反过来转换编译器就会报错，即使使用const_cast也无济于事，所以尽量还是优先使用iterator，如果真的得到了一个const_iterator，函数却需要iterator，可以使用advance和distance搭配来”转换”.
+12345678using IntDeque &#x3...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/02/06</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href = "/2020/02/06/C++%E6%A8%A1%E6%9D%BF%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC%E8%A7%84%E5%88%99/" >
+            
+                <span>C++模板型别推导机制</span>
+        </a>
+        <div class="abstract-content">
+            模板型别推导规则以如下形式举例
+1234template&lt;typename T&gt;void f(ParamType param);f(expr);
+
+共分三种情况：  
+
+ParamType是指针或者引用但不是万能引用
+
+123456789101112131415161718192021222324252627282930template&lt;typename T&gt;void f(T&amp; param);int x &#x3D; 1; &#x2F;&#x2F; x类型intconst int cx &#x3D; x; &#x2F;&#x2F; cx类型const in...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/02/06</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href = "/2020/02/06/C++%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" >
+            
+                <span>C++设计模式</span>
         </a>
         <div class="abstract-content">
             最近在研究设计模式，发现尽管设计模式是针对面向对象语言提出的，但貌似市面上大多数都是基于java给出的例子，C++的例子极少，自己看完李建忠老师的GOF设计模式视频后查阅各种资料并结合自身实践总结如下，所有设计模式后续都会更新到这篇文章上。
@@ -392,7 +496,7 @@ height:50vh;
     <article class="index-post">
         <a class="abstract-title" href = "/2020/02/06/sqlite3%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" >
             
-                <span>sqlite3使用总结</span>
+                <span>sqlite3总结</span>
         </a>
         <div class="abstract-content">
             sqlite3总结由于最近在Arm板子上开发程序需要使用数据库功能，找到了这个小巧的数据库，总结如下：注：以下仅是个人理解，不权威
@@ -400,32 +504,6 @@ height:50vh;
 
 
 交叉编译123.&#x2F;configure --host&#x3D;arm-himix200-linux --prefix&#x3D;&#x2F;home&#x2F;zjucad&#x2F;wang...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/02/06</span>
-            </div>
-            <!-- tags  -->
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2020/02/06/%E6%B5%85%E8%B0%88Linux%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/" >
-            
-                <span>浅谈Linux零拷贝机制</span>
-        </a>
-        <div class="abstract-content">
-            什么是零拷贝零拷贝指的是数据从一个存储区域到另一个存储区域的过程中不需要cpu参与执行拷贝的动作，通常用于网络传输文件时减少cpu的负载，解放cpu去提升系统整体性能。
-谈到零拷贝我们还需要了解到DMA是什么：DMA（Direct Memory Access）是指在现代计算机系统上，外接设备可以不用CPU干预，直接把数据传输到内存的技术。正常情况下，CPU全权负责内存的读写操作，而DMA技术可以把CPU解放出来，这将使计算机性能得到显著改善。
-如果做到零拷贝普通的文件传输伪代码如下：
-123while(read(buffer)) &#123;  write(fd, buffer);&#1...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
@@ -652,9 +730,44 @@ height:50vh;
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 3
+        Total : 6
         </div>
         <!-- search  -->
         
@@ -665,31 +778,37 @@ height:50vh;
     
     
     
-    <div class="archive-year"> Invalid date </div>
-    <ul class="year-list">
-    
-    
-        <li class="archive-post-item">
-            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/2020/02/06/C-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" >C-设计模式</a>
-        </li>
-    
-    
-    
-    
-    
-        </ul>
-    
     <div class="archive-year"> 2020 </div>
     <ul class="year-list">
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/sqlite3%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" >sqlite3使用总结</a>
+            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/%E6%B5%85%E8%B0%88C++%E7%9A%84ScopeExit/" >浅谈C++的ScopeExit</a>
         </li>
     
     
         <li class="archive-post-item">
             <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/%E6%B5%85%E8%B0%88Linux%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/" >浅谈Linux零拷贝机制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/C++%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" >C++迭代器注意事项</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/C++%E6%A8%A1%E6%9D%BF%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC%E8%A7%84%E5%88%99/" >C++模板型别推导机制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/C++%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" >C++设计模式</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/sqlite3%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" >sqlite3总结</a>
         </li>
     
     </div>

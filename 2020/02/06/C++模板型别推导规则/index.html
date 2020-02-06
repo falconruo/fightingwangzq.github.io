@@ -22,7 +22,7 @@
     <meta name="description" content="">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-    <title>浅谈Linux零拷贝机制 · this_is_for_u</title>
+    <title>C++模板型别推导机制 · this_is_for_u</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -217,7 +217,7 @@
                 <a href="/" >this_is_for_u</a>
             </div>
             <div class="post-title">
-                <a href="#" class="post-name">浅谈Linux零拷贝机制</a>
+                <a href="#" class="post-name">C++模板型别推导机制</a>
             </div>
     </div>
     
@@ -247,7 +247,7 @@ height:50vh;
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            浅谈Linux零拷贝机制
+            C++模板型别推导机制
             <!-- 404 -->
             
         </h1>
@@ -266,7 +266,7 @@ height:50vh;
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">462</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">552</span>阅读时长: <span class="post-count reading-time">2 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -395,17 +395,24 @@ height:50vh;
         <div class="container container-unloaded">
             <main class="main post-page">
     <article class="article-entry">
-        <h3 id="什么是零拷贝"><a href="#什么是零拷贝" class="headerlink" title="什么是零拷贝"></a>什么是零拷贝</h3><p>零拷贝指的是数据从一个存储区域到另一个存储区域的过程中不需要cpu参与执行拷贝的动作，通常用于网络传输文件时减少cpu的负载，解放cpu去提升系统整体性能。</p>
-<p>谈到零拷贝我们还需要了解到DMA是什么：<br>DMA（Direct Memory Access）是指在现代计算机系统上，外接设备可以不用CPU干预，直接把数据传输到内存的技术。正常情况下，CPU全权负责内存的读写操作，而DMA技术可以把CPU解放出来，这将使计算机性能得到显著改善。</p>
-<h3 id="如果做到零拷贝"><a href="#如果做到零拷贝" class="headerlink" title="如果做到零拷贝"></a>如果做到零拷贝</h3><p>普通的文件传输伪代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">while(read(buffer)) &#123;</span><br><span class="line">  write(fd, buffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>拷贝动作如图<br><img src="https://upload-images.jianshu.io/upload_images/3725930-f9cfb05c6ebca2a0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="zero_copy0.png"><br>从图中可以看到，cpu参与了两次拷贝动作，从内核态拷贝到用户态，再从用户态拷贝到内核态，而且cpu的下文切换也是有消耗的，我们致力于减少cpu的上下文切换以及这两次cpu的拷贝操作。</p>
-<p>linux有一个系统调用sendfile可以避免cpu的上下文切换，使得拷贝操作全部在内核态执行，拷贝操作如图：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;sys&#x2F;sendfile.h&gt;</span><br><span class="line">ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);</span><br></pre></td></tr></table></figure>
+        <h3 id="模板型别推导规则"><a href="#模板型别推导规则" class="headerlink" title="模板型别推导规则"></a>模板型别推导规则</h3><p>以如下形式举例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">void f(ParamType param);</span><br><span class="line"></span><br><span class="line">f(expr);</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://upload-images.jianshu.io/upload_images/3725930-0592d9cd2ae93319.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="zero_copy1.png"><br>如图，使用sendfile系统调用避免了cpu的上下文切换，同时cpu的拷贝动作也减少了一次，其实上面的sendfile是老版本的内核实现，最新版本的内核带有gather功能的sendfile就已经完全避免了cpu的拷贝操作，如图：<br><img src="https://upload-images.jianshu.io/upload_images/3725930-2738d81a093d1b75.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="zero_copy2.png"><br>这就是cpu的零拷贝。</p>
-<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p><a href="http://man7.org/linux/man-pages/man2/sendfile.2.html" target="_blank" rel="noopener">linux sendfile</a><br><a href="https://www.jianshu.com/p/e76e3580e356" target="_blank" rel="noopener">浅谈 Linux下的零拷贝机制</a><br><a href="https://nanxiao.me/dma-introduction/" target="_blank" rel="noopener">DMA简介</a><br><a href="https://www.ibm.com/developerworks/cn/linux/l-cn-zerocopy1/index.html" target="_blank" rel="noopener">Linux 中的零拷贝技术，第 1 部分</a><br><a href="https://www.ibm.com/developerworks/cn/linux/l-cn-zerocopy2/index.html" target="_blank" rel="noopener">Linux 中的零拷贝技术，第 2 部分</a>  </p>
+<p>共分三种情况：  </p>
+<ul>
+<li>ParamType是指针或者引用但不是万能引用</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">void f(T&amp; param);</span><br><span class="line"></span><br><span class="line">int x &#x3D; 1; &#x2F;&#x2F; x类型int</span><br><span class="line">const int cx &#x3D; x; &#x2F;&#x2F; cx类型const int</span><br><span class="line">const int &amp;rx &#x3D; x; &#x2F;&#x2F; rx类型const int&amp;</span><br><span class="line"></span><br><span class="line">f(x); &#x2F;&#x2F; T的类型是int, param类型是int&amp;</span><br><span class="line">f(cx); &#x2F;&#x2F; T的类型是const int，param类型是const int&amp;</span><br><span class="line">f(rx); &#x2F;&#x2F; T的类型是const int，param类型是const int&amp;</span><br><span class="line">&#x2F;&#x2F;当ParamType是指针或引用时，引用特性在推导过程中是被忽略的。</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line">void f(const T&amp; param);</span><br><span class="line">int x &#x3D; 1;</span><br><span class="line">const int cx &#x3D; x;</span><br><span class="line">const int &amp;rx &#x3D; x;</span><br><span class="line"></span><br><span class="line">f(x); &#x2F;&#x2F; T的类型是int, param类型是const int&amp;</span><br><span class="line">f(cx); &#x2F;&#x2F; T的类型是int，param类型是const int&amp;</span><br><span class="line">f(rx); &#x2F;&#x2F; T的类型是int，param类型是const int&amp;</span><br><span class="line">&#x2F;&#x2F;当ParamType是指针或引用时，引用特性在推导过程中是被忽略的。</span><br><span class="line">&#x2F;&#x2F; 同理，由于param已经具有const特性，所以在推导过程中const属性也会被忽略。</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line">void f(T* param);</span><br><span class="line">int x &#x3D; 1;</span><br><span class="line">const int *px &#x3D; &amp;x;</span><br><span class="line">f(&amp;x); &#x2F;&#x2F; T的类型int, param类型int*</span><br><span class="line">f(px);  &#x2F;&#x2F; T的类型是const int , param类型const int*</span><br></pre></td></tr></table></figure>
 
+<ul>
+<li>ParamType是万能引用类型<br>即 </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">void f(T&amp;&amp; param);</span><br><span class="line">f(expr);</span><br><span class="line">&#x2F;&#x2F; 如果expr是个左值，则T和paramtype都会推导为左值引用</span><br><span class="line">&#x2F;&#x2F; 如果expr是个右值，正常推导</span><br><span class="line">int x &#x3D; 2;</span><br><span class="line">const int cx &#x3D; x;</span><br><span class="line">const int&amp; rx &#x3D; x;</span><br><span class="line"></span><br><span class="line">f(x); &#x2F;&#x2F; x 是左值， T的类型为int&amp;, param 为 int&amp;</span><br><span class="line">f(cx); cx : lvalue, T : const int&amp;, param: const int&amp;</span><br><span class="line">f(rx);rx : lvalue, T: const int&amp;, param: const int&amp;</span><br><span class="line">f(2);2: rvalue, T: int, param : int &amp;&amp;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ParamType既不是指针也不是引用</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">void f(T param); &#x2F;&#x2F; param 为值传递</span><br><span class="line">f(expr);</span><br><span class="line">&#x2F;&#x2F; 因为是值传递，所以expr的所有修饰特性都会被忽略，const, 引用，volatile等，都被忽略</span><br><span class="line"></span><br><span class="line">int x &#x3D; 2;</span><br><span class="line">const int cx &#x3D; x;</span><br><span class="line">const int&amp; rx &#x3D; x;</span><br><span class="line">f(x); &#x2F;&#x2F; T : int, param : int</span><br><span class="line">f(cx); &#x2F;&#x2F; T : int, param : int</span><br><span class="line">f(rx); &#x2F;&#x2F; T : int , param : int</span><br></pre></td></tr></table></figure>
     </article>
     <!-- license  -->
     
@@ -414,16 +421,16 @@ height:50vh;
         <li class="next">
             
                 <div class="nextSlogan">Next Post</div>
-                <a href= "/2020/02/06/%E6%B5%85%E8%B0%88C++%E7%9A%84ScopeExit/" title= "浅谈C++的ScopeExit">
-                    <div class="nextTitle">浅谈C++的ScopeExit</div>
+                <a href= "/2020/02/06/C++%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" title= "C++迭代器注意事项">
+                    <div class="nextTitle">C++迭代器注意事项</div>
                 </a>
             
         </li>
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href= "/2020/02/06/C++%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" title= "C++迭代器注意事项">
-                    <div class="prevTitle">C++迭代器注意事项</div>
+                <a href= "/2020/02/06/C++%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title= "C++设计模式">
+                    <div class="prevTitle">C++设计模式</div>
                 </a>
             
         </li>
@@ -542,7 +549,7 @@ top:50vh;
         <div class="toc-catalog">
             <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
         </div>
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是零拷贝"><span class="toc-number">1.</span> <span class="toc-text">什么是零拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果做到零拷贝"><span class="toc-number">2.</span> <span class="toc-text">如果做到零拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#模板型别推导规则"><span class="toc-number">1.</span> <span class="toc-text">模板型别推导规则</span></a></li></ol>
     </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
