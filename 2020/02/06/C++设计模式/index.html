@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="王志强">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="王志强">
+    
+    <meta name="keywords" content="C++,编程,深度学习">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>C++设计模式 · this_is_for_u</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >this_is_for_u</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">C++设计模式</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>this_is_for_u</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            C++设计模式
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">6.6k</span>阅读时长: <span class="post-count reading-time">28 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2020/02/06</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p>最近在研究设计模式，发现尽管设计模式是针对面向对象语言提出的，但貌似市面上大多数都是基于java给出的例子，C++的例子极少，自己看完李建忠老师的GOF设计模式视频后查阅各种资料并结合自身实践总结如下，所有设计模式后续都会更新到这篇文章上。</p>
+<h3 id="设计模式简介"><a href="#设计模式简介" class="headerlink" title="设计模式简介"></a>设计模式简介</h3><p>设计模式是主要针对面向对象语言提出的一种设计思想，主要是提高代码可复用性，抵御变化，尽量将变化所带来的影响降到最低。</p>
+<h3 id="面向对象特点"><a href="#面向对象特点" class="headerlink" title="面向对象特点"></a>面向对象特点</h3><ul>
+<li>封装：隐藏内部实现</li>
+<li>继承：复用现有的代码</li>
+<li>多态：改写对象的行为</li>
+</ul>
+<h3 id="面向对象设计原则"><a href="#面向对象设计原则" class="headerlink" title="面向对象设计原则"></a>面向对象设计原则</h3><ol>
+<li>依赖倒置原则：针对接口编程，依赖于抽象而不依赖于具体，抽象(稳定)不应依赖于实现细节(变化)，实现细节应该依赖于抽象，因为稳定态如果依赖于变化态则会变成不稳定态。</li>
+<li>开放封闭原则：对扩展开放，对修改关闭，业务需求是不断变化的，当程序需要扩展的时候，不要去修改原来的代码，而要灵活使用抽象和继承，增加程序的扩展性，使易于维护和升级，类、模块、函数等都是可以扩展的，但是不可修改。</li>
+<li>单一职责原则：一个类只做一件事，一个类应该仅有一个引起它变化的原因，并且变化的方向隐含着类的责任。</li>
+<li>里氏替换原则：子类必须能够替换父类，任何引用基类的地方必须能透明的使用其子类的对象，开放关闭原则的具体实现手段之一。</li>
+<li>接口隔离原则：接口最小化且完备，尽量少public来减少对外交互，只把外部需要的方法暴露出来。</li>
+<li>最少知道原则：一个实体应该尽可能少的与其他实体发生相互作用。</li>
+<li>将变化的点进行封装，做好分界，保持一侧变化，一侧稳定，调用侧永远稳定，被调用测内部可以变化。</li>
+<li>优先使用组合而非继承，继承为白箱操作，而组合为黑箱，继承某种程度上破坏了封装性，而且父类与子类之间耦合度比较高。</li>
+<li>针对接口编程，而非针对实现编程，强调<strong>接口标准化</strong>。</li>
+</ol>
+<p>小总结: 没有一步到位的设计模式，刚开始编程时不要把太多精力放到设计模式上，需求总是变化的，刚开始着重于实现，一般敏捷开发后为了应对变化重构再决定采取合适的设计模式。</p>
+<h3 id="模板方法"><a href="#模板方法" class="headerlink" title="模板方法"></a>模板方法</h3><p>父类定义算法的骨架，而将一些步骤延迟到子类去实现，使得子类可以复用骨架，并附加特性，以开发框架举例，框架开发人员把框架调用流程定好，而将某些具体的步骤作为虚函数留给子类去重写，话不多说，上代码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GAME__</span><br><span class="line">#define __GAME__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class Game &#123;</span><br><span class="line">   public:</span><br><span class="line">    Game() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual ~Game() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    void Run() &#123;</span><br><span class="line">        InitGame();</span><br><span class="line">        StartGame();</span><br><span class="line">        StopGame();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   protected:</span><br><span class="line">    virtual void StartGame() &#123; std::cout &lt;&lt; &quot;step 2: start game&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    void InitGame() &#123; std::cout &lt;&lt; &quot;step 1: init game&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">    void StopGame() &#123; std::cout &lt;&lt; &quot;step 3: stop game&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class BasketBall : public Game &#123;</span><br><span class="line">    void StartGame() override &#123; std::cout &lt;&lt; &quot;start basketball game&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class SocketBall : public Game &#123;</span><br><span class="line">    void StartGame() override &#123; std::cout &lt;&lt; &quot;start socketball game&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;basketball.h&quot;</span><br><span class="line">#include &quot;socketball.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Game *game &#x3D; new BasketBall();</span><br><span class="line">    game-&gt;Run();</span><br><span class="line">    delete game;</span><br><span class="line">    Game *game2 &#x3D; new SocketBall();</span><br><span class="line">    game2-&gt;Run();</span><br><span class="line">    delete game2;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">g++ test.cc -std&#x3D;c++11 &amp;&amp; .&#x2F;a.out</span><br><span class="line">输出：</span><br><span class="line">step 1: init game</span><br><span class="line">start basketball game</span><br><span class="line">step 3: stop game</span><br><span class="line">step 1: init game</span><br><span class="line">start socketball game</span><br><span class="line">step 3: stop game</span><br></pre></td></tr></table></figure>
+<p>代码很简单，体现的是思想，游戏包含三个步骤，初始化游戏，开始游戏，停止游戏，初始化游戏和停止游戏步骤比较统一，由父类Game定义好，而开始游戏是第二个步骤，可以有打篮球和踢足球，将来也可以有羽毛球，乒乓球等等，每增加一项运动，都可以从Game父类中继承后重写开始游戏这个函数，达到不同的功能，符合<strong>模板方法</strong>的特性，即<strong>如何在确定稳定结构前提下，应对子步骤需求的变化</strong>。</p>
+<h3 id="策略模式"><a href="#策略模式" class="headerlink" title="策略模式"></a>策略模式</h3><p>定义一系列的算法，将它们一个个封装，使得他们可以相互替换，一般为了解决多个if-else带来的复杂性，在多种算法相似的情况下，通过策略模式可减少if-else带来的复杂性和难以维护性，一般在项目中发现多个if-else并且预感将来还会在此增加if-else分支，那基本上就需要使用策略模式。<br>先举一个不使用策略模式的例子，拿计算来说，下面代码定义了加法操作和减法操作，以后如果需要增加乘法除法等计算，那就需要在枚举里添加新类型，并且增加if-else分支，这违反了开放关闭原则。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">enum class CalOperation &#123;</span><br><span class="line">    add,</span><br><span class="line">    sub</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int NoStragegy(CalOperation ope) &#123;</span><br><span class="line">    if (ope &#x3D;&#x3D; CalOperation::add) &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;this is add operation&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125; else if (ope &#x3D;&#x3D; CalOperation::sub) &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;this is sub operation&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125; &#x2F;&#x2F; 如何将来需要增加乘法或者除法或者其它运算，还需要增加if-else</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下例为使用策略模式，定义一个基类Calculation，包含虚函数operation()。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __CALCULATION__</span><br><span class="line">#define __CALCULATION__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class Calculation &#123;</span><br><span class="line">   public:</span><br><span class="line">    Calculation() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual ~Calculation() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual void operation() &#123; std::cout &lt;&lt; &quot;base operation&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>每增加一种运算，就增加一个继承基类的子类，重写operation()函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __ADD__</span><br><span class="line">#define __ADD__</span><br><span class="line"></span><br><span class="line">#include &quot;calculation.h&quot;</span><br><span class="line"></span><br><span class="line">class Add : public Calculation &#123;</span><br><span class="line">    void operation() override &#123; std::cout &lt;&lt; &quot;this is add operation&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SUB__</span><br><span class="line">#define __SUB__</span><br><span class="line"></span><br><span class="line">#include &quot;calculation.h&quot;</span><br><span class="line"></span><br><span class="line">class Sub : public Calculation &#123;</span><br><span class="line">    void operation() override &#123; std::cout &lt;&lt; &quot;this is sub operation&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">int Stragegy() &#123;</span><br><span class="line">    Calculation *cal &#x3D; new Add();</span><br><span class="line">    cal-&gt;operation();</span><br><span class="line">    delete cal;</span><br><span class="line"></span><br><span class="line">    Calculation *cal2 &#x3D; new Sub(); &#x2F;&#x2F; 这里将来都可以用工厂模式改掉，不会违反开放封闭原则</span><br><span class="line">    cal2-&gt;operation();</span><br><span class="line">    delete cal2;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>是不是方便了很多，将来如果有乘法除法和其它运算规则，只需要再加一个继承基类的子类即可。</p>
+<h3 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h3><p>定义对象间的一对多关系，当一个对象状态发生改变的时候，其它依赖于它的对象都会得到广播通知并进行自定义动作，通过面向对象技术的多态技术，可以降低这种依赖关系，降低耦合度，上代码.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __OBSERVER__</span><br><span class="line">#define __OBSERVER__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class ObserverBase &#123;</span><br><span class="line">   public:</span><br><span class="line">    ObserverBase() &#123;&#125;</span><br><span class="line">    virtual ~ObserverBase() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual void Update() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __OBSERVER_FIRST_CHILD__</span><br><span class="line">#define __OBSERVER_FIRST_CHILD__</span><br><span class="line"></span><br><span class="line">#include &quot;observer.h&quot;</span><br><span class="line"></span><br><span class="line">class ObserverFirstChild : public ObserverBase &#123;</span><br><span class="line">    void Update() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;first child receive notify&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __OBSERVER_SECOND_CHILD__</span><br><span class="line">#define __OBSERVER_SECOND_CHILD__</span><br><span class="line"></span><br><span class="line">#include &quot;observer.h&quot;</span><br><span class="line"></span><br><span class="line">class ObserverSecondChild : public ObserverBase &#123;</span><br><span class="line">    void Update() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;second child receive notify&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;list&gt;</span><br><span class="line">#include &quot;observer_first_child.h&quot;</span><br><span class="line">#include &quot;observer_second_child.h&quot;</span><br><span class="line"></span><br><span class="line">class NotifyBase &#123;</span><br><span class="line">   public:</span><br><span class="line">    void Add(ObserverBase *ob) &#123; observers.emplace_back(ob); &#125;;</span><br><span class="line"></span><br><span class="line">    void Remove(ObserverBase *ob) &#123; observers.remove(ob); &#125;</span><br><span class="line"></span><br><span class="line">    void Notify() &#123;</span><br><span class="line">        for (auto observer : observers) &#123;</span><br><span class="line">            observer-&gt;Update();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    std::list&lt;ObserverBase *&gt; observers;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    ObserverBase *base1 &#x3D; new ObserverFirstChild();</span><br><span class="line">    ObserverBase *base2 &#x3D; new ObserverSecondChild();</span><br><span class="line"></span><br><span class="line">    NotifyBase notify;</span><br><span class="line">    notify.Add(base2);</span><br><span class="line">    notify.Add(base1);</span><br><span class="line">    notify.Notify();</span><br><span class="line">    notify.Remove(base1);</span><br><span class="line">    notify.Notify();</span><br><span class="line"></span><br><span class="line">    delete base2;</span><br><span class="line">    delete base1;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过观察者模式可以灵活的控制依赖的对象，动态的增加和删除需要得到通知的对象。</p>
+<h3 id="装饰器模式"><a href="#装饰器模式" class="headerlink" title="装饰器模式"></a>装饰器模式</h3><p>动态的给一个对象添加一些额外的职责，扩展一个类的功能，就增加功能来说，使用装饰器模式比单纯的继承子类更加灵活，不一定非要疯狂使用继承方式。<br>举个例子，有游戏这个大类，扩展这个类的功能，有打篮球，踢足球，玩lol，玩卡丁车，可以分别定义继承游戏基类的四个子类，但是如果想组合这几个功能呢，一个对象既会打篮球又会玩卡丁车，既会打篮球又会玩lol，再定义几个类继承游戏基类显然不是好的做法，装饰器模式可以很好的解决这个问题，上代码：<br>首先定义一个Game基类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GAME__</span><br><span class="line">#define __GAME__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class Game &#123;</span><br><span class="line">   public:</span><br><span class="line">    Game() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual ~Game() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual void Skill() &#123; std::cout &lt;&lt; &quot;game skill&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>定义卡丁车子类和lol子类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __CAR_GAME__</span><br><span class="line">#define __CAR_GAME__</span><br><span class="line"></span><br><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class CarGame : public Game &#123;</span><br><span class="line">   public:</span><br><span class="line">    void Skill() override &#123; std::cout &lt;&lt; &quot;car game&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __LOL_GAME__</span><br><span class="line">#define __LOL_GAME__</span><br><span class="line"></span><br><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class LolGame : public Game &#123;</span><br><span class="line">   public:</span><br><span class="line">    void Skill() override &#123; std::cout &lt;&lt; &quot;lol game&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>篮球和足球子类也可以像上面一样继承定义，但是如果都像上面一样继承的话不能实现动态扩展功能的需求，所以先定义一个装饰类，之后定义继承这个装饰类的篮球和足球子类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __DECORATOR_GAME__</span><br><span class="line">#define __DECORATOR_GAME__</span><br><span class="line"></span><br><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class DecoratorGame : public Game &#123;</span><br><span class="line">   protected:</span><br><span class="line">    Game *game_;</span><br><span class="line"></span><br><span class="line">   public:</span><br><span class="line">    DecoratorGame(Game *game) &#123; game_ &#x3D; game; &#125;</span><br><span class="line"></span><br><span class="line">    void Skill() override &#123; game_-&gt;Skill(); &#125;</span><br><span class="line"></span><br><span class="line">    virtual ~DecoratorGame() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __BASKETBALL__</span><br><span class="line">#define __BASKETBALL__</span><br><span class="line"></span><br><span class="line">#include &quot;decorator_game.h&quot;</span><br><span class="line"></span><br><span class="line">class BasketBallGame : public DecoratorGame &#123;</span><br><span class="line">   public:</span><br><span class="line">    BasketBallGame(Game *game) : DecoratorGame(game) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    void Skill() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;basketball game&quot; &lt;&lt; std::endl;</span><br><span class="line">        DecoratorGame::Skill();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SOCKETBALL__</span><br><span class="line">#define __SOCKETBALL__</span><br><span class="line"></span><br><span class="line">#include &quot;decorator_game.h&quot;</span><br><span class="line"></span><br><span class="line">class SocketBallGame : public DecoratorGame &#123;</span><br><span class="line">   public:</span><br><span class="line">    SocketBallGame(Game *game) : DecoratorGame(game) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    void Skill() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;socket game&quot; &lt;&lt; std::endl;</span><br><span class="line">        DecoratorGame::Skill();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>最后看使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;lol_game.h&quot;</span><br><span class="line">#include &quot;decorator_game.h&quot;</span><br><span class="line">#include &quot;basketball.h&quot;</span><br><span class="line">#include &quot;car_game.h&quot;</span><br><span class="line">#include &quot;socketball.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Game *lol &#x3D; new LolGame();</span><br><span class="line">    Game *car &#x3D; new CarGame();</span><br><span class="line">    &#x2F;&#x2F; 一个人既会打篮球又会打LOL可以如下使用</span><br><span class="line">    Game* basketball_lol &#x3D; new BasketBallGame(lol);</span><br><span class="line">    basketball_lol-&gt;Skill();</span><br><span class="line">    std::cout &lt;&lt; std::endl;</span><br><span class="line">    &#x2F;&#x2F; 一个人既会打篮球又会玩卡丁车可以如下使用</span><br><span class="line">    Game* basketball_car &#x3D; new BasketBallGame(car);</span><br><span class="line">    basketball_car-&gt;Skill();</span><br><span class="line">    std::cout &lt;&lt; std::endl;</span><br><span class="line">    &#x2F;&#x2F; 一个人既会打篮球又会玩卡丁车又会踢足球可以如下使用</span><br><span class="line">    Game* g &#x3D; new SocketBallGame(basketball_lol);</span><br><span class="line">    g-&gt;Skill();</span><br><span class="line"></span><br><span class="line">    delete lol;</span><br><span class="line">    delete basketball_car;</span><br><span class="line">    delete basketball_lol;</span><br><span class="line">    delete g;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 输出</span><br><span class="line">basketball game</span><br><span class="line">lol game</span><br><span class="line"></span><br><span class="line">basketball game</span><br><span class="line">car game</span><br><span class="line"></span><br><span class="line">socket game</span><br><span class="line">basketball game</span><br><span class="line">lol game</span><br></pre></td></tr></table></figure>
+<p>通过上例可以看出，使用观察者模式可以动态的扩展类的职责，动态的组合类的各个功能，当看代码时发现一个类既继承了父类同时又持有父类的对象指针，那这基本上就是装饰器模式。</p>
+<h3 id="桥接模式"><a href="#桥接模式" class="headerlink" title="桥接模式"></a>桥接模式</h3><p>确定好抽象部分和实现部分，将抽象部分和实现部分分离，使得他们可以独立的变化，实现系统和抽象系统可能各自都会有各自的变化，使用桥接模式可以更加灵活的扩展，方法：用组合代替继承。<br>举例：一个图形基类，可以有圆形矩形多边形等等，每个都需要从图形基类中继承出一个子类，但是每个子类还需要画图，画颜色，圆形可能需要黄色黑色白色蓝色等等，矩形也可能需要黄色黑色白色蓝色等等，这种如果单纯的使用继承就不太灵活，可以使用桥接模式，把图形种类当作抽象部分，画颜色当作实现部分，使用组合的方式将抽象部分和实现部分分离，上代码：<br>首先将实现部分(画图)提取出来，同时多种画图方式从这个基类继承后重写，之后会作为Shape图形类的一个成员变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SHAPE_DRAW_IMPL__</span><br><span class="line">#define __SHAPE_DRAW_IMPL__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class ShapeDrawImpl &#123;</span><br><span class="line">   public:</span><br><span class="line">    virtual void Draw() &#x3D; 0;</span><br><span class="line"></span><br><span class="line">    virtual ~ShapeDrawImpl() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SHAPE_DRAW_IMPL_RED__</span><br><span class="line">#define __SHAPE_DRAW_IMPL_RED__</span><br><span class="line"></span><br><span class="line">#include &quot;shape_draw_impl.h&quot;</span><br><span class="line"></span><br><span class="line">class ShapeDrawImplRed : public ShapeDrawImpl&#123;</span><br><span class="line">   public:</span><br><span class="line">    virtual void Draw() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;draw red&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SHAPE_DRAW_IMPL_BLACK__</span><br><span class="line">#define __SHAPE_DRAW_IMPL_BLACK__</span><br><span class="line"></span><br><span class="line">#include &quot;shape_draw_impl.h&quot;</span><br><span class="line"></span><br><span class="line">class ShapeDrawImplBlack : public ShapeDrawImpl&#123;</span><br><span class="line">   public:</span><br><span class="line">    virtual void Draw() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;draw black&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>上面定义了两种颜色的实现方式，红色和黑色，下面定义图形的类，定义一个图形基类，持有画图实现的句柄，之后定义多个继承图形基类的子类，圆形子类和矩形子类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SHAPE__</span><br><span class="line">#define __SHAPE__</span><br><span class="line"></span><br><span class="line">#include &quot;shape_draw_impl.h&quot;</span><br><span class="line"></span><br><span class="line">class Shape &#123;</span><br><span class="line">   protected:</span><br><span class="line">    ShapeDrawImpl *impl;</span><br><span class="line"></span><br><span class="line">   public:</span><br><span class="line">    virtual void Update() &#123;&#125;</span><br><span class="line">    Shape(ShapeDrawImpl *impl_) : impl(impl_) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SHAPE_CIRCLE__</span><br><span class="line">#define __SHAPE_CIRCLE__</span><br><span class="line"></span><br><span class="line">#include &quot;shape.h&quot;</span><br><span class="line"></span><br><span class="line">class ShapeCircle : public Shape &#123;</span><br><span class="line">public:</span><br><span class="line">    void Update() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;circle shape update&quot; &lt;&lt; std::endl; </span><br><span class="line">        impl-&gt;Draw();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ShapeCircle(ShapeDrawImpl *imp) : Shape(imp) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SHAPE_RECTANGLE__</span><br><span class="line">#define __SHAPE_RECTANGLE__</span><br><span class="line"></span><br><span class="line">#include &quot;shape.h&quot;</span><br><span class="line"></span><br><span class="line">class ShapeRectangle : public Shape &#123;</span><br><span class="line">   public:</span><br><span class="line">    void Update() override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;rectangle shape update&quot; &lt;&lt; std::endl;</span><br><span class="line">        impl-&gt;Draw();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ShapeRectangle(ShapeDrawImpl *imp) : Shape(imp) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;shape_circle.h&quot;</span><br><span class="line">#include &quot;shape_rectangle.h&quot;</span><br><span class="line">#include &quot;shape_draw_impl_black.h&quot;</span><br><span class="line">#include &quot;shape_draw_impl_red.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    ShapeDrawImpl *impl &#x3D; new ShapeDrawImplBlack();</span><br><span class="line">    Shape* circle &#x3D; new ShapeCircle(impl);</span><br><span class="line">    circle-&gt;Update();</span><br><span class="line"></span><br><span class="line">    delete impl;</span><br><span class="line">    delete circle;</span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">输出：</span><br><span class="line">circle shape update</span><br><span class="line">draw black</span><br></pre></td></tr></table></figure>
+<p>通过桥接模式可以更好的应对变化，应对抽象和实现的多种组合变化。</p>
+<h3 id="工厂模式"><a href="#工厂模式" class="headerlink" title="工厂模式"></a>工厂模式</h3><p>工厂模式属于创建型模式，主要用于创建对象时不向外部暴露创建逻辑，通过一个共同的接口指向新创建的对象，通过面向对象的多态，将创建对象的工作延迟到子类执行，由子类决定实例化哪个对象。用于隔离对象使用者与其具体类型之间的耦合关系，当具体类型经常变化时，可以考虑使用工厂模式。有一个类型的抽象基类，同时又有很多继承该抽象基类的具体类型，我们做的就是使其依赖于抽象而不依赖于具体，实现方式是创建一个工厂基类，在为每个具体类型定义一个可以创建其相应对象的工厂，每一个具体类对应一个具体工厂，工厂类继承自工厂基类，通过工厂基类的多态性就可以决定创建什么类型的对象。上代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GAME__</span><br><span class="line">#define __GAME__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class Game &#123;</span><br><span class="line">  public:</span><br><span class="line">    Game() &#123;&#125;</span><br><span class="line">    virtual ~Game() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual void Play() &#123;</span><br><span class="line">      std::cout &lt;&lt; &quot;play game&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __BASKETBALL__</span><br><span class="line">#define __BASKETBALL__</span><br><span class="line"></span><br><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class BasketBall : public Game &#123;</span><br><span class="line">    void Play() override &#123; std::cout &lt;&lt; &quot;play basketball&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SOCKETBALL__</span><br><span class="line">#define __SOCKETBALL__</span><br><span class="line"></span><br><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class SocketBall : public Game &#123;</span><br><span class="line">    void Play() override &#123; std::cout &lt;&lt; &quot;play socketball&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>可以通过游戏工厂选择创建不同游戏类型的对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GAME_FACTORY__</span><br><span class="line">#define __GAME_FACTORY__</span><br><span class="line"></span><br><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class GameFactory &#123;</span><br><span class="line">    public:</span><br><span class="line">    GameFactory() &#123;&#125;</span><br><span class="line">    virtual ~GameFactory() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual Game* CreateGame() &#x3D; 0;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __BASKETBALL_FACTORY__</span><br><span class="line">#define __BASKETBALL_FACTORY__</span><br><span class="line"></span><br><span class="line">#include &quot;game_factory.h&quot;</span><br><span class="line">#include &quot;basketball.h&quot;</span><br><span class="line"></span><br><span class="line">class BasketBallFactory : public GameFactory &#123;</span><br><span class="line">   public:</span><br><span class="line">    Game* CreateGame() override&#123;</span><br><span class="line">        return new BasketBall();</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __SOCKETBALL_FACTORY__</span><br><span class="line">#define __SOCKETBALL_FACTORY__</span><br><span class="line"></span><br><span class="line">#include &quot;game_factory.h&quot;</span><br><span class="line">#include &quot;socketball.h&quot;</span><br><span class="line"></span><br><span class="line">class SocketBallFactory : public GameFactory &#123;</span><br><span class="line">   public:</span><br><span class="line">    Game* CreateGame() override&#123;</span><br><span class="line">        return new SocketBall();</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;basketball_factory.h&quot;</span><br><span class="line">#include &quot;socketball_factory.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    GameFactory* factory &#x3D; new BasketBallFactory();</span><br><span class="line">    Game* game &#x3D; factory-&gt;CreateGame();</span><br><span class="line">    game-&gt;Play();</span><br><span class="line"></span><br><span class="line">    delete factory;</span><br><span class="line">    delete game;</span><br><span class="line"></span><br><span class="line">    factory &#x3D; new SocketBallFactory();</span><br><span class="line">    game &#x3D; factory-&gt;CreateGame();</span><br><span class="line">    game-&gt;Play();</span><br><span class="line"></span><br><span class="line">    delete factory;</span><br><span class="line">    delete game;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">输出：</span><br><span class="line">play basketball</span><br><span class="line">play socketball</span><br></pre></td></tr></table></figure>
+<p>当有新类型增加时，需要添加一个具体类和一个相应的创建工厂，尽管减少了耦合度，但是其实还是比较麻烦的。</p>
+<h3 id="抽象工厂方法模式"><a href="#抽象工厂方法模式" class="headerlink" title="抽象工厂方法模式"></a>抽象工厂方法模式</h3><p>和工厂方法模式类似，不做过多介绍，说一下定义，抽象工厂方法模式主要提供一个接口，让该接口负责创建多系列“相关或相互的对象”，无需指定具体的类，系列对象指的是某一特定系列下的对象间有相互依赖或相互作用的关系，不同系列的对象之间不能相互依赖，如果没有多系列对象创建的需求变化，没必要使用<strong>抽象工厂方法</strong>模式，使用<strong>简单工厂方法</strong>模式就可以，拿上一个举例继续说，游戏类型是一个系列，我们有了一个游戏类型的工厂，以后可能会再加入娱乐圈类型的一个系列，那就在做一个娱乐圈类型的系列工厂，以后可能还有文艺类型的系列，那就再加一个文艺类型的系列工厂，这就有了三个系列的工厂，所以就可以在这三类工厂的基础上再抽象出一个抽象的超级工厂，根据不同需求选择实例化哪一个系列的具体工厂，再创建具体工厂下的具体类型的对象。</p>
+<h3 id="原型模式"><a href="#原型模式" class="headerlink" title="原型模式"></a>原型模式</h3><p>用于创建重复的对象，定义一个clone接口，通过调用clone接口创建出与原来类型相同的对象，上代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GAME__</span><br><span class="line">#define __GAME__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">class Game &#123;</span><br><span class="line">    public:</span><br><span class="line">      virtual Game* clone() &#x3D; 0;</span><br><span class="line"></span><br><span class="line">      virtual void Play() &#x3D; 0;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __BASKETBALL__</span><br><span class="line">#define __BASKETBALL__</span><br><span class="line"></span><br><span class="line">#include &quot;game.h&quot;</span><br><span class="line"></span><br><span class="line">class BasketBall : public Game &#123;</span><br><span class="line">    virtual Game* clone() override &#123;</span><br><span class="line">        return new BasketBall();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    virtual void Play() override &#123;</span><br><span class="line">      std::cout &lt;&lt; &quot;basketball&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;basketball.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Game *game &#x3D; new BasketBall();</span><br><span class="line">    game-&gt;Play();</span><br><span class="line">    Game* new_game &#x3D; game-&gt;clone();</span><br><span class="line">    new_game-&gt;Play();</span><br><span class="line">    </span><br><span class="line">    delete game;</span><br><span class="line">    delete new_game;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>单纯看game不知道它是什么类型，它可能是篮球游戏也可能是足球游戏等，如果想创建一个与它相同类型的对象就可以使用原型模式其实就是实现一个clone接口，如果一个对象的拷贝构造函数比较复杂而自己不想使用拷贝构造的方式创建对象也可以使用原型模式，使用方式见上例。</p>
+<h3 id="建造者模式"><a href="#建造者模式" class="headerlink" title="建造者模式"></a>建造者模式</h3><p>用于构建一个复杂的大的对象，一个复杂的对象通常需要一步步才可以构建完成，建造者模式强调的是一步步创建对象，并通过相同的构建过程可以获得不同的结果对象，一般来说建造者对象不是直接返回的，与抽象工厂方法区别是抽象工厂方法用于创建多个系列的对象，而建造者模式强调一步步构建对象，并且构建步骤固定，举例：想要构建一个老师类的对象，老师有第一技能和第二技能，第一技能是数学就代表是数学老师，第一技能是英语就代表是语文老师，构造一个老师对象需要先设定老师的第一技能再设定老师的第二技能，强调一步步设定技能，将这一步步的构建过程可以抽象出建造者模式。<br>首先定义老师类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __TEACHER__</span><br><span class="line">#define __TEACHER__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;string&gt;</span><br><span class="line"></span><br><span class="line">class Teacher &#123;</span><br><span class="line">   private:</span><br><span class="line">    std::string first_skill_;</span><br><span class="line">    std::string second_skill_;</span><br><span class="line"></span><br><span class="line">   public:</span><br><span class="line">    void SetFirstSkill(const std::string&amp; skill) &#123; this-&gt;first_skill_ &#x3D; skill; &#125;</span><br><span class="line"></span><br><span class="line">    void SetSecondSkill(const std::string&amp; skill) &#123; this-&gt;second_skill_ &#x3D; skill; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>定义一个老师的抽象构建器，再根据具体老师继承出具体的老师构建器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __TEACHER_ABSTRACT_BUILDER__</span><br><span class="line">#define __TEACHER_ABSTRACT_BUILDER__</span><br><span class="line"></span><br><span class="line">#include &quot;teacher.h&quot;</span><br><span class="line"></span><br><span class="line">class TeacherAbstractBuilder &#123;</span><br><span class="line">   public:</span><br><span class="line">    TeacherAbstractBuilder() &#123;&#125;</span><br><span class="line">    virtual ~TeacherAbstractBuilder() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    virtual void BuildFirstSkill() &#x3D; 0;</span><br><span class="line">    virtual void BuildSecondSkill() &#x3D; 0;</span><br><span class="line"></span><br><span class="line">    virtual Teacher* GetTeacher() &#x3D; 0;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __MATH_TEACHER_BUILDER__</span><br><span class="line">#define __MATH_TEACHER_BUILDER__</span><br><span class="line"></span><br><span class="line">#include &quot;teacher_abstract_builder.h&quot;</span><br><span class="line"></span><br><span class="line">class MathTeacherBuilder : public TeacherAbstractBuilder &#123;</span><br><span class="line">   public:</span><br><span class="line">    MathTeacherBuilder() &#123; this-&gt;teacher_ &#x3D; new Teacher(); &#125;</span><br><span class="line"></span><br><span class="line">    ~MathTeacherBuilder() &#123; delete this-&gt;teacher_; &#125;</span><br><span class="line"></span><br><span class="line">    Teacher* GetTeacher() &#123; return this-&gt;teacher_; &#125;</span><br><span class="line"></span><br><span class="line">    void BuildFirstSkill() &#123; this-&gt;teacher_-&gt;SetFirstSkill(&quot;math&quot;); &#125;</span><br><span class="line"></span><br><span class="line">    void BuildSecondSkill() &#123; this-&gt;teacher_-&gt;SetSecondSkill(&quot;english&quot;); &#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    Teacher* teacher_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __ENGLISH_TEACHER_BUILDER__</span><br><span class="line">#define __ENGLISH_TEACHER_BUILDER__</span><br><span class="line"></span><br><span class="line">#include &quot;teacher_abstract_builder.h&quot;</span><br><span class="line"></span><br><span class="line">class EnglishTeacherBuilder : public TeacherAbstractBuilder &#123;</span><br><span class="line">   public:</span><br><span class="line">    EnglishTeacherBuilder() &#123; this-&gt;teacher_ &#x3D; new Teacher(); &#125;</span><br><span class="line"></span><br><span class="line">    ~EnglishTeacherBuilder() &#123; delete this-&gt;teacher_; &#125;</span><br><span class="line"></span><br><span class="line">    Teacher* GetTeacher() &#123; return this-&gt;teacher_; &#125;</span><br><span class="line"></span><br><span class="line">    void BuildFirstSkill() &#123; this-&gt;teacher_-&gt;SetFirstSkill(&quot;english&quot;); &#125;</span><br><span class="line"></span><br><span class="line">    void BuildSecondSkill() &#123; this-&gt;teacher_-&gt;SetSecondSkill(&quot;math&quot;); &#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    Teacher* teacher_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>定义一个稳定的Director类，由它根据具体的老师构建器决定构建哪一个老师</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __DIRECTOR__</span><br><span class="line">#define __DIRECTOR__</span><br><span class="line"></span><br><span class="line">#include &quot;teacher_abstract_builder.h&quot;</span><br><span class="line"></span><br><span class="line">class Director &#123;</span><br><span class="line">   public:</span><br><span class="line">    Director(TeacherAbstractBuilder* builder) &#123; this-&gt;builder_ &#x3D; builder; &#125;</span><br><span class="line"></span><br><span class="line">    ~Director() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    void Create() &#123;</span><br><span class="line">        this-&gt;builder_-&gt;BuildFirstSkill();</span><br><span class="line">        this-&gt;builder_-&gt;BuildSecondSkill();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    TeacherAbstractBuilder* builder_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>使用方法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;director.h&quot;</span><br><span class="line">#include &quot;english_teacher_builder.h&quot;</span><br><span class="line">#include &quot;math_teacher_builder.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    TeacherAbstractBuilder *builder &#x3D; new MathTeacherBuilder();</span><br><span class="line">    Director *director &#x3D; new Director(builder);</span><br><span class="line">    delete builder;</span><br><span class="line">    delete director;</span><br><span class="line"></span><br><span class="line">    builder &#x3D; new EnglishTeacherBuilder();</span><br><span class="line">    director &#x3D; new Director(builder);</span><br><span class="line">    delete builder;</span><br><span class="line">    delete director;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过Director利用不同的具体构建器都采用相同的步骤一步步构建出不同的具体的老师类对象。</p>
+<h3 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h3><p>不多说了，网上太多了，列一段单例的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">static SingleTon&amp; GetInstance() &#123;</span><br><span class="line">        static SingleTon t;</span><br><span class="line">        return t;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="享元模式"><a href="#享元模式" class="headerlink" title="享元模式"></a>享元模式</h3><p>通过共享技术有效支持大量细粒度的对象，主要解决面向对象代价问题，通过共享有效降低创建的对象个数，类似于对象池。<br>举例：篮球分多种颜色，我想要蓝色的篮球想要红色的篮球这就需要创建两个对象，当我再想要一个蓝色的篮球如果能够继续使用之前的那个对象就更好，通过享元模式可以做到。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __BASKETBALL__</span><br><span class="line">#define __BASKETBALL__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;string&gt;</span><br><span class="line"></span><br><span class="line">class BasketBall &#123;</span><br><span class="line">   public:</span><br><span class="line">    BasketBall(const std::string&amp; color) : color_(color) &#123;&#125;</span><br><span class="line">    ~BasketBall() &#123;&#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    std::string color_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __BASKETBALL_FACTORY__</span><br><span class="line">#define __BASKETBALL_FACTORY__</span><br><span class="line"></span><br><span class="line">#include &lt;unordered_map&gt;</span><br><span class="line">#include &quot;basketball.h&quot;</span><br><span class="line"></span><br><span class="line">class BasketballFactory &#123;</span><br><span class="line">   private:</span><br><span class="line">    std::unordered_map&lt;std::string, BasketBall*&gt; map_;</span><br><span class="line"></span><br><span class="line">   public:</span><br><span class="line">    BasketBall* GetBasketBallWithColor(const std::string&amp; color) &#123;</span><br><span class="line">        if (map_.find(color) &#x3D;&#x3D; map_.end()) &#123;</span><br><span class="line">            BasketBall* p &#x3D; new BasketBall(color);</span><br><span class="line">            map_[color] &#x3D; p;</span><br><span class="line">            return p;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return map_[color];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;BasketballFactory.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    BasketballFactory factory;</span><br><span class="line">    BasketBall* white_ball1 &#x3D; factory.GetBasketBallWithColor(&quot;white&quot;);</span><br><span class="line">    BasketBall* black_ball1 &#x3D; factory.GetBasketBallWithColor(&quot;black&quot;);</span><br><span class="line">    BasketBall* white_ball2 &#x3D; factory.GetBasketBallWithColor(&quot;white&quot;);</span><br><span class="line">    BasketBall* black_ball2 &#x3D; factory.GetBasketBallWithColor(&quot;black&quot;);</span><br><span class="line">    std::cout &lt;&lt; white_ball1 &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; white_ball2 &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; black_ball1 &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; black_ball2 &lt;&lt; std::endl;</span><br><span class="line">    &#x2F;&#x2F; remember to delete</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">输出：</span><br><span class="line">0x7fffe4984e70</span><br><span class="line">0x7fffe4984e70</span><br><span class="line">0x7fffe4984f00</span><br><span class="line">0x7fffe4984f00</span><br></pre></td></tr></table></figure>
+
+<h3 id="外观模式-Facade-Pattern"><a href="#外观模式-Facade-Pattern" class="headerlink" title="外观模式(Facade Pattern)"></a>外观模式(Facade Pattern)</h3><p>感觉外观模式没啥特别的，感觉就是做好功能之间边界的划分，做好封装，弄清楚哪部分是稳定的，哪部分是变化的，对外稳定松耦合，对内迭代变化高内聚，子系统的内部外部要做好解耦，为子系统的一组接口提供一个稳定一致的(界面)，子系统中的任何变化都不会影响这个(界面)的变化。</p>
+<h3 id="代理模式-Proxy-Pattern"><a href="#代理模式-Proxy-Pattern" class="headerlink" title="代理模式(Proxy Pattern)"></a>代理模式(Proxy Pattern)</h3><p>为其它对象提供一种代理以控制这个对象的访问，一般对于比较大的对象访问比较困难或者或带来很多麻烦，例如裸指针的使用，所以一般使用智能指针来控制裸指针，使用智能指针也是一种代理模式，举例：A喜欢B想送给B礼物，但是却不认识B，而C却认识B，所以可以把C作为A的代理去送给B礼物，代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GIRL__</span><br><span class="line">#define __GIRL__</span><br><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;string&gt;</span><br><span class="line"></span><br><span class="line">class Girl &#123;</span><br><span class="line">   private:</span><br><span class="line">    std::string name_;</span><br><span class="line"></span><br><span class="line">   public:</span><br><span class="line">    Girl(const std::string &amp;name) : name_(name) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    std::string GetName() const noexcept &#123; return name_; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GIFT__</span><br><span class="line">#define __GIFT__</span><br><span class="line"></span><br><span class="line">#include &quot;girl.h&quot;</span><br><span class="line"></span><br><span class="line">class Gift &#123;</span><br><span class="line">   public:</span><br><span class="line">    virtual void GiveGift() &#x3D; 0;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#ifndef __GIFT_PROXY__</span><br><span class="line">#define __GIFT_PROXY__</span><br><span class="line"></span><br><span class="line">#include &quot;gift.h&quot;</span><br><span class="line">#include &quot;girl.h&quot;</span><br><span class="line"></span><br><span class="line">class GiftProxy : public Gift &#123;</span><br><span class="line">   public:</span><br><span class="line">    GiftProxy(Girl girl) : girl_(girl) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    void GiveGift() override &#123; std::cout &lt;&lt; &quot;send &quot; &lt;&lt; girl_.GetName() &lt;&lt; &quot; gift&quot; &lt;&lt; std::endl; &#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    Girl girl_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;gift_proxy.h&quot;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Girl lili(&quot;lili&quot;);</span><br><span class="line">    GiftProxy proxy(lili);</span><br><span class="line">    proxy.GiveGift();</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上述代码，通过代理模式就可以给丽丽送礼物。</p>
+<h3 id="适配器模式"><a href="#适配器模式" class="headerlink" title="适配器模式"></a>适配器模式</h3><p>太常见了，每个人都会用，两个不兼容的接口之间的桥梁，就像耳机转换头，充电器转换头等等都是适配器模式，将一个类的接口转换为客户希望的另一种接口的形式，使得原本由于接口不兼容而不能一起工作的类可以一起工作。</p>
+<h3 id="中介模式"><a href="#中介模式" class="headerlink" title="中介模式"></a>中介模式</h3><p>使用一个中介对象来封装一系列的对象交互，当多个对象间互相引用且操作比较复杂时可以考虑使用中介模式。如下图所示：左侧五个对象互相依赖，通过中介这个桥梁就可以减少这个依赖。<br><img src="https://upload-images.jianshu.io/upload_images/3725930-0dc4b653116db321.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/440" alt="d320c85de4434586e5fb5931742e6cd.jpg"></p>
+<h3 id="状态模式"><a href="#状态模式" class="headerlink" title="状态模式"></a>状态模式</h3><p>当一个对象的行为依赖于它的状态并且其有很多种状态而且将来还会有更多状态时，如果使用简单的if-else来增加新状态就违反了面向对象的开闭原则，这时可以考虑使用状态模式，将具体的状态做出一个抽象类，也类似于工厂模式，将具体的状态分散于各个子类中，避免了更多的if-else分支，上代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Context;</span><br><span class="line"></span><br><span class="line">class State &#123;</span><br><span class="line">   public:</span><br><span class="line">    virtual void Handle(Context *context) &#x3D; 0;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class Context &#123;</span><br><span class="line">   public:</span><br><span class="line">    Context(State *state) : state_(state) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    void Request() &#123;</span><br><span class="line">        if (state_) &#123;</span><br><span class="line">            state_-&gt;Handle(this);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    void ChangeState(State *pState) &#123; state_ &#x3D; pState; &#125;</span><br><span class="line"></span><br><span class="line">   private:</span><br><span class="line">    State *state_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class ConcreteStateA : public State &#123;</span><br><span class="line">   public:</span><br><span class="line">    void Handle(Context *context) override &#123; cout &lt;&lt; &quot;I am state a&quot; &lt;&lt; endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class ConcreteStateB : public State &#123;</span><br><span class="line">   public:</span><br><span class="line">    void Handle(Context *context) override &#123; cout &lt;&lt; &quot;I am state b&quot; &lt;&lt; endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    State *state_a &#x3D; new ConcreteStateA();</span><br><span class="line">    State *state_b &#x3D; new ConcreteStateB();</span><br><span class="line">    Context *context &#x3D; new Context(state_a);</span><br><span class="line"></span><br><span class="line">    context-&gt;Request();</span><br><span class="line">    context-&gt;ChangeState(state_b);</span><br><span class="line">    context-&gt;Request();</span><br><span class="line"></span><br><span class="line">    delete context;</span><br><span class="line">    delete state_b;</span><br><span class="line">    delete state_a;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2020/02/06/%E6%B5%85%E8%B0%88C++%E7%9A%84ScopeExit/" title= "浅谈C++的ScopeExit">
+                    <div class="nextTitle">浅谈C++的ScopeExit</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2020/02/06/%E6%B5%85%E8%B0%88Linux%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/" title= "浅谈Linux零拷贝机制">
+                    <div class="prevTitle">浅谈Linux零拷贝机制</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:fightingwangzq@163.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/fightingwangzq" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#设计模式简介"><span class="toc-number">1.</span> <span class="toc-text">设计模式简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#面向对象特点"><span class="toc-number">2.</span> <span class="toc-text">面向对象特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#面向对象设计原则"><span class="toc-number">3.</span> <span class="toc-text">面向对象设计原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模板方法"><span class="toc-number">4.</span> <span class="toc-text">模板方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#策略模式"><span class="toc-number">5.</span> <span class="toc-text">策略模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#观察者模式"><span class="toc-number">6.</span> <span class="toc-text">观察者模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#装饰器模式"><span class="toc-number">7.</span> <span class="toc-text">装饰器模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#桥接模式"><span class="toc-number">8.</span> <span class="toc-text">桥接模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工厂模式"><span class="toc-number">9.</span> <span class="toc-text">工厂模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象工厂方法模式"><span class="toc-number">10.</span> <span class="toc-text">抽象工厂方法模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原型模式"><span class="toc-number">11.</span> <span class="toc-text">原型模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#建造者模式"><span class="toc-number">12.</span> <span class="toc-text">建造者模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单例模式"><span class="toc-number">13.</span> <span class="toc-text">单例模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#享元模式"><span class="toc-number">14.</span> <span class="toc-text">享元模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#外观模式-Facade-Pattern"><span class="toc-number">15.</span> <span class="toc-text">外观模式(Facade Pattern)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代理模式-Proxy-Pattern"><span class="toc-number">16.</span> <span class="toc-text">代理模式(Proxy Pattern)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适配器模式"><span class="toc-number">17.</span> <span class="toc-text">适配器模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#中介模式"><span class="toc-number">18.</span> <span class="toc-text">中介模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#状态模式"><span class="toc-number">19.</span> <span class="toc-text">状态模式</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 4
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> Invalid date </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/2020/02/06/C++%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" >C++设计模式</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/sqlite3%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" >sqlite3使用总结</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> Invalid date </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/2020/02/06/%E6%B5%85%E8%B0%88C++%E7%9A%84ScopeExit/" >浅谈C++的ScopeExit</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span><a class="archive-post-title" href= "/2020/02/06/%E6%B5%85%E8%B0%88Linux%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/" >浅谈Linux零拷贝机制</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "王志强"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

@@ -22,7 +22,7 @@
     <meta name="description" content="">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-    <title>浅谈Linux零拷贝机制 · this_is_for_u</title>
+    <title>sqlite3使用总结 · this_is_for_u</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -217,7 +217,7 @@
                 <a href="/" >this_is_for_u</a>
             </div>
             <div class="post-title">
-                <a href="#" class="post-name">浅谈Linux零拷贝机制</a>
+                <a href="#" class="post-name">sqlite3使用总结</a>
             </div>
     </div>
     
@@ -247,7 +247,7 @@ height:50vh;
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            浅谈Linux零拷贝机制
+            sqlite3使用总结
             <!-- 404 -->
             
         </h1>
@@ -266,7 +266,7 @@ height:50vh;
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">462</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">1.3k</span>阅读时长: <span class="post-count reading-time">5 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -395,16 +395,44 @@ height:50vh;
         <div class="container container-unloaded">
             <main class="main post-page">
     <article class="article-entry">
-        <h3 id="什么是零拷贝"><a href="#什么是零拷贝" class="headerlink" title="什么是零拷贝"></a>什么是零拷贝</h3><p>零拷贝指的是数据从一个存储区域到另一个存储区域的过程中不需要cpu参与执行拷贝的动作，通常用于网络传输文件时减少cpu的负载，解放cpu去提升系统整体性能。</p>
-<p>谈到零拷贝我们还需要了解到DMA是什么：<br>DMA（Direct Memory Access）是指在现代计算机系统上，外接设备可以不用CPU干预，直接把数据传输到内存的技术。正常情况下，CPU全权负责内存的读写操作，而DMA技术可以把CPU解放出来，这将使计算机性能得到显著改善。</p>
-<h3 id="如果做到零拷贝"><a href="#如果做到零拷贝" class="headerlink" title="如果做到零拷贝"></a>如果做到零拷贝</h3><p>普通的文件传输伪代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">while(read(buffer)) &#123;</span><br><span class="line">  write(fd, buffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>拷贝动作如图<br><img src="https://upload-images.jianshu.io/upload_images/3725930-f9cfb05c6ebca2a0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="zero_copy0.png"><br>从图中可以看到，cpu参与了两次拷贝动作，从内核态拷贝到用户态，再从用户态拷贝到内核态，而且cpu的下文切换也是有消耗的，我们致力于减少cpu的上下文切换以及这两次cpu的拷贝操作。</p>
-<p>linux有一个系统调用sendfile可以避免cpu的上下文切换，使得拷贝操作全部在内核态执行，拷贝操作如图：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;sys&#x2F;sendfile.h&gt;</span><br><span class="line">ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);</span><br></pre></td></tr></table></figure>
+        <h1 id="sqlite3总结"><a href="#sqlite3总结" class="headerlink" title="sqlite3总结"></a>sqlite3总结</h1><p>由于最近在Arm板子上开发程序需要使用数据库功能，找到了这个小巧的数据库，总结如下：<br>注：以下仅是个人理解，不权威</p>
+<h3 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;www.sqlite.org&#x2F;2017&#x2F;sqlite-autoconf-3160200.tar.gz</span><br><span class="line">tar xvzf sqlite-autoconf-3160200.tar.gz</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://upload-images.jianshu.io/upload_images/3725930-0592d9cd2ae93319.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="zero_copy1.png"><br>如图，使用sendfile系统调用避免了cpu的上下文切换，同时cpu的拷贝动作也减少了一次，其实上面的sendfile是老版本的内核实现，最新版本的内核带有gather功能的sendfile就已经完全避免了cpu的拷贝操作，如图：<br><img src="https://upload-images.jianshu.io/upload_images/3725930-2738d81a093d1b75.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="zero_copy2.png"><br>这就是cpu的零拷贝。</p>
-<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p><a href="http://man7.org/linux/man-pages/man2/sendfile.2.html" target="_blank" rel="noopener">linux sendfile</a><br><a href="https://www.jianshu.com/p/e76e3580e356" target="_blank" rel="noopener">浅谈 Linux下的零拷贝机制</a><br><a href="https://nanxiao.me/dma-introduction/" target="_blank" rel="noopener">DMA简介</a><br><a href="https://www.ibm.com/developerworks/cn/linux/l-cn-zerocopy1/index.html" target="_blank" rel="noopener">Linux 中的零拷贝技术，第 1 部分</a><br><a href="https://www.ibm.com/developerworks/cn/linux/l-cn-zerocopy2/index.html" target="_blank" rel="noopener">Linux 中的零拷贝技术，第 2 部分</a>  </p>
+
+<h3 id="交叉编译"><a href="#交叉编译" class="headerlink" title="交叉编译"></a>交叉编译</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure --host&#x3D;arm-himix200-linux --prefix&#x3D;&#x2F;home&#x2F;zjucad&#x2F;wangzhiqiang&#x2F;toolDir&#x2F;sqlite-autoconf-3160200&#x2F;libs</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+<p>按顺序执行上述命令后sqlite的链接库和头文件等就会出现在prefix目录下</p>
+<h3 id="api使用"><a href="#api使用" class="headerlink" title="api使用"></a>api使用</h3><p>基本的使用流程  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlite3_open()-&gt;sqlite3_prepare_v2()-&gt;sqlite3_step()-&gt;sqlite3_column()-&gt;sqlite3_finalize()-&gt;sqlite3_close()</span><br></pre></td></tr></table></figure>
+<p>具体介绍:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_open(</span><br><span class="line">  const char *filename,   &#x2F;* Database filename (UTF-8) *&#x2F;</span><br><span class="line">  sqlite3 **ppDb          &#x2F;* OUT: SQLite db handle *&#x2F;</span><br><span class="line">);</span><br><span class="line">打开一个数据库，第一个参数为数据库的路径，注意这里不能为:memory:，这表示存在内存中，第二个参数为返回，返回这个数据库的handle，函数返回值是int，成功则返回SQLITE_OK，失败的话可以通过sqlite3_errmsg()查看错误信息。</span><br><span class="line">注：sqlite还有个sqlite3_open_v2()函数，添加一些flag，看着不太常用。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_prepare_v2(</span><br><span class="line">  sqlite3 *db,            &#x2F;* Database handle *&#x2F;</span><br><span class="line">  const char *zSql,       &#x2F;* SQL statement, UTF-8 encoded *&#x2F;</span><br><span class="line">  int nByte,              &#x2F;* Maximum length of zSql in bytes. *&#x2F;</span><br><span class="line">  sqlite3_stmt **ppStmt,  &#x2F;* OUT: Statement handle *&#x2F;</span><br><span class="line">  const char **pzTail     &#x2F;* OUT: Pointer to unused portion of zSql *&#x2F;</span><br><span class="line">);</span><br><span class="line">准备数据库语句的上下文，相当于编译sql语句，最后由step函数执行编译好的语句，ppStmt需要自己首先定义好，最后一个参数基本传NULL。</span><br><span class="line">注：sqlite还有个sqlite3_prepare()函数，但是现在官方推荐使用v2版本，有错误v2版本能够立即暴露出来。</span><br></pre></td></tr></table></figure>
+<p>一般使用sqlite3_prepare_v2()都是和sqlite3_bind_xxx()系列函数一起使用，例如执行插入语句，使用sqlite3_bind_xxx()可以动态绑定某些参数的值，后续给出示例代码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_step(sqlite3_stmt*);</span><br><span class="line">执行数据库语句</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_reset(sqlite3_stmt *pStmt);</span><br><span class="line">重置数据库上下文，当需要重新bind参数时可以使用这个函数，避免多次prepare。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_finalize(sqlite3_stmt *pStmt);</span><br><span class="line">删除数据库语句的上下文，调用了sqlite3_prepare_v2()后无论成功失败都需要调用，避免内存泄漏。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_close(sqlite3 *);</span><br><span class="line">关闭数据库</span><br></pre></td></tr></table></figure>
+<p>在执行查询操作时，可能结果不止一条，那sqlite3_step()函数就会返回SQLITE_ROW直到所有结果都被查询到会返回SQLITE_DONE，这里每次sqlite3_step()返回SQLITE_ROW后都需要再次调用返回下一次查询的结果。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const void *sqlite3_column_blob(sqlite3_stmt*, int iCol);</span><br><span class="line">int sqlite3_column_bytes(sqlite3_stmt*, int iCol);</span><br><span class="line">int sqlite3_column_bytes16(sqlite3_stmt*, int iCol);</span><br><span class="line">double sqlite3_column_double(sqlite3_stmt*, int iCol);</span><br><span class="line">int sqlite3_column_int(sqlite3_stmt*, int iCol);</span><br><span class="line">sqlite3_int64 sqlite3_column_int64(sqlite3_stmt*, int iCol);</span><br><span class="line">const unsigned char *sqlite3_column_text(sqlite3_stmt*, int iCol);</span><br><span class="line">const void *sqlite3_column_text16(sqlite3_stmt*, int iCol);</span><br><span class="line">int sqlite3_column_type(sqlite3_stmt*, int iCol);</span><br><span class="line">sqlite3_value *sqlite3_column_value(sqlite3_stmt*, int iCol);</span><br><span class="line"></span><br><span class="line">执行查询语句后需要使用这类函数，获取查询到的结果，第二个参数代表第几列，需要根据数据库表的每一列具体类型调用相应的函数，可以通过sqlite3_column_type()获取某一列的类型，通过sqlite3_column_count()函数获取这次查询结果共有多少列。</span><br></pre></td></tr></table></figure>
+
+<p>在一些简单的场景下也可以使用sqlite3的wrapper函数<br>主要有sqlite3_exec()和sqlite3_get_table()函数，相当于调用了sqlite3_prepare_v2()-&gt;sqlite3_step()-&gt;sqlite3_finalize()这个流程。<br>区别是sqlite3_exec()在查询中需要添加回调函数，sqlite3_get_table()主要用在查询上，没有回调，会把查询到的结果存到一块地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_exec(</span><br><span class="line">  sqlite3*,                                  &#x2F;* An open database *&#x2F;</span><br><span class="line">  const char *sql,                           &#x2F;* SQL to be evaluated *&#x2F;</span><br><span class="line">  int (*callback)(void*,int,char**,char**),  &#x2F;* Callback function *&#x2F;</span><br><span class="line">  void *,                                    &#x2F;* 1st argument to callback *&#x2F;</span><br><span class="line">  char **errmsg                              &#x2F;* Error msg written here *&#x2F;</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">注意这里的最后一个参数是错误信息，如果执行函数没有返回SQLITE_OK，可以查看errmsg处的信息，这块内存也需要自己手动调用sqlite3_free()来释放。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">int sqlite3_get_table(</span><br><span class="line">  sqlite3 *db,          &#x2F;* An open database *&#x2F;</span><br><span class="line">  const char *zSql,     &#x2F;* SQL to be evaluated *&#x2F;</span><br><span class="line">  char ***pazResult,    &#x2F;* Results of the query *&#x2F;</span><br><span class="line">  int *pnRow,           &#x2F;* Number of result rows written here *&#x2F;</span><br><span class="line">  int *pnColumn,        &#x2F;* Number of result columns written here *&#x2F;</span><br><span class="line">  char **pzErrmsg       &#x2F;* Error msg written here *&#x2F;</span><br><span class="line">);</span><br><span class="line">void sqlite3_free_table(char **result);</span><br><span class="line"></span><br><span class="line">sqlite3_get_table()主要用在查询上，会把查询到的结果存到一块地址。由调用者手动调用sqlite3_free_table()释放内存。</span><br></pre></td></tr></table></figure>
+
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><p>sqlite3-column-text()等函数返回的地址不需要自己free，sqlite会在调用sqlite3_step() or sqlite3_reset() or sqlite3_finalize()时自动释放<br><a href="https://stackoverflow.com/questions/6402754/sqlite-c-c-api-who-is-respnsible-for-freeing-pointer-from-sqlite3-column-text" target="_blank" rel="noopener">参考这个链接</a></p>
+</li>
+<li><p>如何设置自增字段<br>字段是integer 的primary key就会自增</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE t1(</span><br><span class="line">  a INTEGER PRIMARY KEY,</span><br><span class="line">  b INTEGER</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>如上代码，字段a就会自增，最大值是9223372036854775807，如果insert超过了这个数量，就会返回SQLITE_FULL错误，但90%的数据库行数不会超过这个数量吧</p>
+</li>
+</ul>
+<h3 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">sqlite3 *db_;</span><br><span class="line">std::string sql &#x3D;</span><br><span class="line">        &quot;create table if not exists sqlite(&quot;</span><br><span class="line">        &quot;id INTEGER primary key     AUTOINCREMENT,&quot;</span><br><span class="line">        &quot;value      int64      not null);&quot;;</span><br><span class="line">char *err_msg &#x3D; NULL;</span><br><span class="line">int ret &#x3D; sqlite3_exec(db_, sql.c_str(), NULL, 0, &amp;err_msg);</span><br><span class="line">if (ret !&#x3D; SQLITE_OK) &#123;</span><br><span class="line">    std::cout &lt;&lt; &quot;create table error &quot; &lt;&lt; err_msg;</span><br><span class="line">    sqlite3_free(err_msg);</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">std::string sql &#x3D;</span><br><span class="line">        &quot;insert into sqlite(value) values(?1)&quot;;</span><br><span class="line">sqlite3_stmt *stmt;</span><br><span class="line">int ret &#x3D; sqlite3_prepare_v2(db_, sql.c_str(), -1, &amp;stmt, NULL);</span><br><span class="line">if (ret !&#x3D; SQLITE_OK) &#123;</span><br><span class="line">    std::cout &lt;&lt; &quot;prepare sql error &quot; &lt;&lt; ret &lt;&lt; &quot; &quot; &lt;&lt; sqlite3_errcode(db_);</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br><span class="line">if (sqlite3_bind_int64(stmt, 1, 1) !&#x3D; SQLITE_OK) &#123;</span><br><span class="line">    std::cout &lt;&lt; &quot;bind timestamp error &quot; &lt;&lt; sqlite3_errcode(db_);</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br><span class="line">if (sqlite3_step(stmt) !&#x3D; SQLITE_DONE) &#123;</span><br><span class="line">    std::cout &lt;&lt; &quot;step insert fail &quot; &lt;&lt; sqlite3_errcode(db_);</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br><span class="line">sqlite3_finalize(stmt);</span><br></pre></td></tr></table></figure>
 
     </article>
     <!-- license  -->
@@ -413,13 +441,13 @@ height:50vh;
     <ul class="post-paginator">
         <li class="next">
             
-                <div class="nextSlogan">Next Post</div>
-                <a href= "/2020/02/06/C++%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title= "C++设计模式">
-                    <div class="nextTitle">C++设计模式</div>
-                </a>
-            
         </li>
         <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2020/02/06/%E6%B5%85%E8%B0%88C++%E7%9A%84ScopeExit/" title= "浅谈C++的ScopeExit">
+                    <div class="prevTitle">浅谈C++的ScopeExit</div>
+                </a>
             
         </li>
     </ul>
@@ -537,7 +565,7 @@ top:50vh;
         <div class="toc-catalog">
             <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
         </div>
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是零拷贝"><span class="toc-number">1.</span> <span class="toc-text">什么是零拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果做到零拷贝"><span class="toc-number">2.</span> <span class="toc-text">如果做到零拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#sqlite3总结"><span class="toc-number">1.</span> <span class="toc-text">sqlite3总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#源码下载"><span class="toc-number">1.0.1.</span> <span class="toc-text">源码下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#交叉编译"><span class="toc-number">1.0.2.</span> <span class="toc-text">交叉编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#api使用"><span class="toc-number">1.0.3.</span> <span class="toc-text">api使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#注意事项"><span class="toc-number">1.0.4.</span> <span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#示例代码"><span class="toc-number">1.0.5.</span> <span class="toc-text">示例代码</span></a></li></ol></li></ol></li></ol>
     </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
